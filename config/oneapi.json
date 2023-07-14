@@ -6,14 +6,14 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8000/"
+      "url": "localhost:8000/"
     },
     {
-      "url": "https://localhost:8000/"
+      "url": "https://10.234.111.119/"
     }
   ],
   "paths": {
-    "/api/currentUser": {
+    "/api/backend/currentUser": {
       "get": {
         "tags": ["api"],
         "description": "获取当前的用户",
@@ -42,35 +42,6 @@
         }
       },
       "x-swagger-router-controller": "api"
-    },
-    "/api/login/captcha": {
-      "post": {
-        "description": "发送验证码",
-        "operationId": "getFakeCaptcha",
-        "tags": ["login"],
-        "parameters": [
-          {
-            "name": "phone",
-            "in": "query",
-            "description": "手机号",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FakeCaptcha"
-                }
-              }
-            }
-          }
-        }
-      }
     },
     "/api/login/outLogin": {
       "post": {
@@ -179,7 +150,7 @@
             }
           },
           {
-            "name": "pageSize",
+            "name": "page_size",
             "in": "query",
             "description": "页面的容量",
             "schema": {
@@ -406,7 +377,7 @@
           "current": {
             "type": "number"
           },
-          "pageSize": {
+          "page_size": {
             "type": "number"
           }
         }

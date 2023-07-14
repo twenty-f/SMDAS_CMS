@@ -7,7 +7,7 @@ export type { RuntimeConfig } from './core/defineApp'
 export { createBrowserHistory, createHashHistory, createMemoryHistory, Helmet, HelmetProvider, createSearchParams, generatePath, matchPath, matchRoutes, Navigate, NavLink, Outlet, resolvePath, useLocation, useMatch, useNavigate, useOutlet, useOutletContext, useParams, useResolvedPath, useRoutes, useSearchParams, useAppData, useClientLoaderData, useRouteProps, useSelectedRoutes, useServerLoaderData, renderClient, __getRoot, Link, useRouteData, __useFetcher, withRouter } from 'F:/demo/git_clone_summer/fuckyou/node_modules/@umijs/renderer-react';
 export type {  History } from 'F:/demo/git_clone_summer/fuckyou/node_modules/@umijs/renderer-react'
 // umi/client/client/plugin
-export { ApplyPluginsType, PluginManager } from 'F:/demo/git_clone_summer/fuckyou/node_modules/umi/client/client/plugin.js';
+export { ApplyPluginsType, PluginManager } from 'F:/demo/git_clone_summer/fuckyou/node_modules/@umijs/max/node_modules/umi/client/client/plugin.js';
 export { history, createHistory } from './core/history';
 export { terminal } from './core/terminal';
 export { TestBrowser } from './testBrowser';

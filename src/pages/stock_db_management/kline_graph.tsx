@@ -15,7 +15,7 @@ export const waitTime = async (time: number = 100) => {
 };
 
 type KlineInfoList = {
-  code: string;
+  stock_code: string;
   date: string;
   total_amount: number;
   total_sales: number;
@@ -36,7 +36,7 @@ const columns: ProColumns<KlineInfoList>[] = [
   {
     disable: true,
     title: '股票代码',
-    dataIndex: 'code',
+    dataIndex: 'stock_code',
     copyable: true,
     ellipsis: true,
     editable: false,
@@ -58,8 +58,8 @@ const columns: ProColumns<KlineInfoList>[] = [
     search: {
       transform: (value) => {
         return {
-          startTime: value[0],
-          endTime: value[1],
+          start_time: value[0],
+          end_time: value[1],
         };
       },
     },
@@ -90,6 +90,7 @@ const columns: ProColumns<KlineInfoList>[] = [
     ellipsis: true,
     valueType:'money',
     search: false,
+    editable: false,
   },
   {
     disable: true,
@@ -151,7 +152,7 @@ const columns: ProColumns<KlineInfoList>[] = [
       <a
         key="editable"
         onClick={() => {
-          action?.startEditable?.(record.code);
+          action?.startEditable?.(record.stock_code);
         }}
       >
         编辑
@@ -172,7 +173,7 @@ export default () => {
         await waitTime(2000);
         return request<{
           data: KlineInfoList[];
-        }>('http://10.236.66.157/api/backend/kline_graph/list_get', {
+        }>('http://10.236.66.49/api/backend/kline_graph/list_get', {
           params,
         });
       }}
@@ -192,13 +193,22 @@ export default () => {
           //   lowest_price: number;
           //   increase: number;
           // };
-          const { code, total_amount, total_sales, average_price, open_price, close_price, highest_price, lowest_price, increase} = data; 
+          const { stock_code, date, total_amount, total_sales, average_price, open_price, close_price, highest_price, lowest_price, increase} = data; 
           // 提取需要修改的字段
-          const payload = { code, total_amount, total_sales, average_price, open_price, close_price, highest_price, lowest_price, increase }; 
+          const payload = { stock_code, date, total_amount, total_sales, average_price, open_price, close_price, highest_price, lowest_price, increase }; 
           // 构造需要上传的数据
           console.log('payload: ', payload);
           // 发送 POST 请求将修改后的数据同步到后端
-          await request.post(`http://10.236.66.157/api/backend/kline_graph/info_change`,{data:payload});
+          await request.post(`http://10.236.66.49/api/backend/kline_graph/info_change`,{data:payload});
+          // 重新加载数据
+          actionRef.current?.reload();
+        },
+        onDelete: async (rowKey, data) => {
+          const { stock_code, date } = data; // 提取需要删除的字段
+          const payload = { stock_code, date }; // 构造需要上传的数据
+          console.log('payload: ', payload);
+          // 发送 POST 请求将修改后的数据同步到后端
+          await request.post(`http://10.236.66.49/api/backend/kline_graph/info_delete`,{data:payload});
           // 重新加载数据
           actionRef.current?.reload();
         },
@@ -206,9 +216,9 @@ export default () => {
       columnsState={{
         persistenceKey: 'pro-table-singe-demos',
         persistenceType: 'localStorage',
-        onChange(value) {
-          console.log('value: ', value);
-        },
+        // onChange(value) {
+        //   console.log('value: ', value);
+        // },
       }}
       rowKey="code"
       search={{
@@ -233,7 +243,7 @@ export default () => {
       }}
       pagination={{
         pageSize: 5,
-        onChange: (page) => console.log(page),
+        //onChange: (page) => console.log(page),
       }}
       dateFormatter="string"
       headerTitle="股票K线图信息列表"

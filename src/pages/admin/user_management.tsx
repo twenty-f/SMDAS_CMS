@@ -16,8 +16,8 @@ export const waitTime = async (time: number = 100) => {
 };
 
 type UserList = {
-  id: number;
-  name: string;
+  account: number;
+  nickname: string;
   state: number;
   created_at: string;
   login_at: string;
@@ -33,14 +33,14 @@ const columns: ProColumns<UserList>[] = [
   {
     disable: true,
     title: '用户ID',
-    dataIndex: 'id',
+    dataIndex: 'account',
     copyable: true,
     ellipsis: true,
     editable: false,
   },
   {
     title: '用户名称',
-    dataIndex: 'name',
+    dataIndex: 'nickname',
     copyable: true,
     ellipsis: true,
     formItemProps: {
@@ -126,7 +126,8 @@ const columns: ProColumns<UserList>[] = [
       <a
         key="editable"
         onClick={() => {
-          action?.startEditable?.(record.id);
+          action?.startEditable?.(record.account);
+          //message.success('修改成功');
         }}
       >
         编辑
@@ -136,15 +137,15 @@ const columns: ProColumns<UserList>[] = [
         onSelect={() => action?.reload()}
         menus={[
           { key: 'password_reset', name: '重置密码', onClick: () => {
-            const id = record.id;
-            const payload = { id }; // 构造需要上传的数据
-            request.post('http://10.236.66.157/api/backend/user/reset/password', {data:payload});
+            const account = record.account;
+            const payload = { account }; // 构造需要上传的数据
+            request.post('http://10.236.66.49/api/backend/user/reset/password', {data:payload});
             }
           },
           { key: 'question_answer_reset', name: '重置密保', onClick: () => {
-            const id = record.id;
-            const payload = { id }; // 构造需要上传的数据
-            request.post('http://10.236.66.157/api/backend/user/reset/security_question', {data:payload});
+            const account = record.account;
+            const payload = { account }; // 构造需要上传的数据
+            request.post('http://10.236.66.49/api/backend/user/reset/security_question', {data:payload});
             }
           },
           // { key: 'password_reset', name: '重置密码',},
@@ -157,12 +158,11 @@ const columns: ProColumns<UserList>[] = [
 // export const handleResetPassword = async (rowKey, data) => {
 //   const { id } = data; // 提取需要修改的字段
 //   const payload = { id }; // 构造需要上传的数据
-//   await request.post('http://10.236.66.157/api/backend/user_list_password_reset', {data:payload});
+//   await request.post('http://10.236.66.49/api/backend/user_list_password_reset', {data:payload});
 // };
 
 export default () => {
   const actionRef = useRef<ActionType>();
-
   return (
     <ProTable<UserList>
       columns={columns}
@@ -174,22 +174,32 @@ export default () => {
         await waitTime(2000);
         return request<{
           data: UserList[];
-        }>('http://10.236.66.157/api/backend/user/list_get', {
+        }>('http://10.236.66.49/api/backend/user/list_get', {
           params,
         });
       }}
-      //http://10.236.66.157/api/backend/user_list_password_reset
+      //http://10.236.66.49/api/backend/user_list_password_reset
       editable={{
         type: 'multiple',
         onSave: async (rowKey, data) => {
-          const { id, name, state } = data; // 提取需要修改的字段
-          const payload = { id, name, state }; // 构造需要上传的数据
+          const { account, nickname, state } = data; // 提取需要修改的字段
+          const payload = { account, nickname, state }; // 构造需要上传的数据
           console.log('payload: ', payload);
           // 发送 POST 请求将修改后的数据同步到后端
-          await request.post(`http://10.236.66.157/api/backend/user/info_change`,{data:payload});
+          await request.post(`http://10.236.66.49/api/backend/user/info_change`,{data:payload});
           // 重新加载数据
           actionRef.current?.reload();
         },
+        onDelete: async (rowKey, data) => {
+          const { account } = data; // 提取需要删除的字段
+          const payload = { account }; // 构造需要上传的数据
+          console.log('payload: ', payload);
+          // 发送 POST 请求将修改后的数据同步到后端
+          await request.post(`http://10.236.66.49/api/backend/user/info_delete`,{data:payload});
+          // 重新加载数据
+          actionRef.current?.reload();
+        },
+        deletePopconfirmMessage: '确定要删除吗？',
       }}
       columnsState={{
         persistenceKey: 'pro-table-singe-demos',
@@ -198,7 +208,7 @@ export default () => {
           console.log('value: ', value);
         },
       }}
-      rowKey="id"
+      rowKey="account"
       search={{
         labelWidth: 'auto',
       }}

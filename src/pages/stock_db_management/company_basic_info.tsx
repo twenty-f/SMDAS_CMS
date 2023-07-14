@@ -15,7 +15,7 @@ export const waitTime = async (time: number = 100) => {
 };
 
 type StockBasicList = {
-  code: string;
+  stock_code: string;
   name: string;
   intro: string;
   leader: string;
@@ -32,7 +32,7 @@ const columns: ProColumns<StockBasicList>[] = [
   {
     disable: true,
     title: '股票代码',
-    dataIndex: 'code',
+    dataIndex: 'stock_code',
     copyable: true,
     ellipsis: true,
     editable: false,
@@ -86,7 +86,7 @@ const columns: ProColumns<StockBasicList>[] = [
       <a
         key="editable"
         onClick={() => {
-          action?.startEditable?.(record.code);
+          action?.startEditable?.(record.stock_code);
         }}
       >
         编辑
@@ -107,18 +107,27 @@ export default () => {
         await waitTime(2000);
         return request<{
           data: StockBasicList[];
-        }>('http://10.236.66.157/api/backend/stock_basic/list_get', {
+        }>('localhost:8000/api/backend/stock_basic/list_get', {
           params,
         });
       }}
       editable={{
         type: 'multiple',
         onSave: async (rowKey, data) => {
-          const { code, intro, leader, distribution, notice} = data; // 提取需要修改的字段
-          const payload = { code, intro, leader, distribution, notice }; // 构造需要上传的数据
+          const { stock_code, intro, leader, distribution, notice} = data; // 提取需要修改的字段
+          const payload = { stock_code, intro, leader, distribution, notice }; // 构造需要上传的数据
           console.log('payload: ', payload);
           // 发送 POST 请求将修改后的数据同步到后端
-          await request.post(`http://10.236.66.157/api/backend/stock_basic/info_change`,{data:payload});
+          await request.post(`localhost:8000/api/backend/stock_basic/info_change`,{data:payload});
+          // 重新加载数据
+          actionRef.current?.reload();
+        },
+        onDelete: async (rowKey, data) => {
+          const { stock_code } = data; // 提取需要删除的字段
+          const payload = { stock_code }; // 构造需要上传的数据
+          console.log('payload: ', payload);
+          // 发送 POST 请求将修改后的数据同步到后端
+          await request.post(`localhost:8000/api/backend/stock_basic/info_delete`,{data:payload});
           // 重新加载数据
           actionRef.current?.reload();
         },

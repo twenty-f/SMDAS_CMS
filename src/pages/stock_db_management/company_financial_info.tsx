@@ -15,7 +15,7 @@ export const waitTime = async (time: number = 100) => {
 };
 
 type StockFinancialList = {
-  code: string;
+  stock_code: string;
   property: number;
   liability: number;
   interest: number;
@@ -36,7 +36,7 @@ const columns: ProColumns<StockFinancialList>[] = [
   {
     disable: true,
     title: '股票代码',
-    dataIndex: 'code',
+    dataIndex: 'stock_code',
     copyable: true,
     ellipsis: true,
     editable: false,
@@ -108,7 +108,7 @@ const columns: ProColumns<StockFinancialList>[] = [
   },
   {
     disable: true,
-    title: '存货周转率',
+    title: '存货周转率[大于]',
     tooltip: '指销售成本与存货平均余额之比。',
     dataIndex: 'inventory_turnover',
     copyable: false,
@@ -117,7 +117,7 @@ const columns: ProColumns<StockFinancialList>[] = [
   },
   {
     disable: true,
-    title: '营业周期',
+    title: '营业周期[大于]',
     tooltip: '指从外购承担付款义务，到收回因销售商品或提供劳务而产生的应收账款的这段时间。其计算公式为：营业周期=存货周转天数+应收账款周转天数。',
     dataIndex: 'operating_cycle',
     copyable: false,
@@ -134,7 +134,7 @@ const columns: ProColumns<StockFinancialList>[] = [
       <a
         key="editable"
         onClick={() => {
-          action?.startEditable?.(record.code);
+          action?.startEditable?.(record.stock_code);
         }}
       >
         编辑
@@ -155,7 +155,7 @@ export default () => {
         await waitTime(2000);
         return request<{
           data: StockFinancialList[];
-        }>('http://10.236.66.157/api/backend/stock_financial/list_get', {
+        }>('localhost:8000/api/backend/stock_financial/list_get', {
           params,
         });
       }}
@@ -175,13 +175,22 @@ export default () => {
           //   inventory_turnover: number;
           //   operating_cycle: number;
           // };
-          const { code, property, liability, interest, income, profit, asset_turnover, account_receivable_turnover, inventory_turnover, operating_cycle} = data; 
+          const { stock_code, property, liability, interest, income, profit, asset_turnover, account_receivable_turnover, inventory_turnover, operating_cycle} = data; 
           // 提取需要修改的字段
-          const payload = { code, property, liability, interest, income, profit, asset_turnover, account_receivable_turnover, inventory_turnover, operating_cycle }; 
+          const payload = { stock_code, property, liability, interest, income, profit, asset_turnover, account_receivable_turnover, inventory_turnover, operating_cycle }; 
           // 构造需要上传的数据
           console.log('payload: ', payload);
           // 发送 POST 请求将修改后的数据同步到后端
-          await request.post(`http://10.236.66.157/api/backend/stock_financial/info_change`,{data:payload});
+          await request.post(`localhost:8000/api/backend/stock_financial/info_change`,{data:payload});
+          // 重新加载数据
+          actionRef.current?.reload();
+        },
+        onDelete: async (rowKey, data) => {
+          const { stock_code } = data; // 提取需要删除的字段
+          const payload = { stock_code }; // 构造需要上传的数据
+          console.log('payload: ', payload);
+          // 发送 POST 请求将修改后的数据同步到后端
+          await request.post(`localhost:8000/api/backend/user/info_delete`,{data:payload});
           // 重新加载数据
           actionRef.current?.reload();
         },

@@ -15,12 +15,15 @@ export const waitTime = async (time: number = 100) => {
 };
 
 type StockShareholderList = {
-  code: string;
+  account: React.Key;
+  stock_code: string;
+  rank: number;
   name: string;
-  indentity: string;
+  identity: string;
   counting: number;
   rate: number;
-  period: number;
+  change_count: number;
+  change_percentage: number;
 };
 
 const columns: ProColumns<StockShareholderList>[] = [
@@ -31,8 +34,17 @@ const columns: ProColumns<StockShareholderList>[] = [
   },
   {
     disable: true,
+    title: '序列号',
+    dataIndex: 'account',
+    copyable: true,
+    ellipsis: true,
+    editable: false,
+    search: false,
+  },
+  {
+    disable: true,
     title: '股票代码',
-    dataIndex: 'code',
+    dataIndex: 'stock_code',
     copyable: true,
     ellipsis: true,
     editable: false,
@@ -42,11 +54,19 @@ const columns: ProColumns<StockShareholderList>[] = [
     title: '股东名称',
     dataIndex: 'name',
     ellipsis: true,
+    editable: false,
+  },
+  {
+    disable: true,
+    title: '公司内排名',
+    dataIndex: 'rank',
+    ellipsis: true,
+    search: false,
   },
   {
     disable: true,
     title: '股东身份',
-    dataIndex: 'indentity',
+    dataIndex: 'identity',
     copyable: true,
     ellipsis: true,
     search: false,
@@ -69,8 +89,16 @@ const columns: ProColumns<StockShareholderList>[] = [
   },
   {
     disable: true,
-    title: '持股期限',
-    dataIndex: 'period',
+    title: '持股数增减',
+    dataIndex: 'change_count',
+    copyable: true,
+    ellipsis: true,
+    search: false,
+  },
+  {
+    disable: true,
+    title: '变动幅度',
+    dataIndex: 'change_percentage',
     copyable: true,
     ellipsis: true,
     search: false,
@@ -85,7 +113,7 @@ const columns: ProColumns<StockShareholderList>[] = [
       <a
         key="editable"
         onClick={() => {
-          action?.startEditable?.(record.code);
+          action?.startEditable?.(record.stock_code);
         }}
       >
         编辑
@@ -106,7 +134,7 @@ export default () => {
         await waitTime(2000);
         return request<{
           data: StockShareholderList[];
-        }>('http://10.236.66.157/api/backend/stock_shareholder/list_get', {
+        }>('http://10.236.66.49/api/backend/stock_shareholder/list_get', {
           params,
         });
       }}
@@ -117,18 +145,27 @@ export default () => {
           // type StockShareholderList = {
           //   code: string;
           //   name: string;
-          //   indentity: string;
+          //   identity: string;
           //   counting: number;
           //   rate: number;
           //   period: number;
           // };
-          const { code, indentity, counting, rate, period} = data; 
+          const { account, stock_code, name, identity, counting, rate, change_count, change_percentage} = data; 
           // 提取需要修改的字段
-          const payload = { code, indentity, counting, rate, period }; 
+          const payload = { account, stock_code, name, identity, counting, rate, change_count, change_percentage }; 
           // 构造需要上传的数据
           console.log('payload: ', payload);
           // 发送 POST 请求将修改后的数据同步到后端
-          await request.post(`http://10.236.66.157/api/backend/stock_shareholder/info_change`,{data:payload});
+          await request.post(`http://10.236.66.49/api/backend/stock_shareholder/info_change`,{data:payload});
+          // 重新加载数据
+          actionRef.current?.reload();
+        },
+        onDelete: async (rowKey, data) => {
+          const { account } = data; // 提取需要删除的字段
+          const payload = { account }; // 构造需要上传的数据
+          console.log('payload: ', payload);
+          // 发送 POST 请求将修改后的数据同步到后端
+          await request.post(`http://10.236.66.49/api/backend/stock_shareholder/info_delete`,{data:payload});
           // 重新加载数据
           actionRef.current?.reload();
         },
@@ -140,7 +177,7 @@ export default () => {
           console.log('value: ', value);
         },
       }}
-      rowKey="code"
+      //rowKey="account"
       search={{
         labelWidth: 'auto',
       }}

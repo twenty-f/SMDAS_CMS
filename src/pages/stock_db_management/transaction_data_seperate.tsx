@@ -15,7 +15,8 @@ export const waitTime = async (time: number = 100) => {
 };
 
 type StockTransactionList = {
-  code: string;
+  id: number;
+  stock_code: string;
   date: string;
   amount: number;
   price: number;
@@ -29,11 +30,20 @@ const columns: ProColumns<StockTransactionList>[] = [
   },
   {
     disable: true,
+    title: '交易ID',
+    dataIndex: 'id',
+    editable: false,
+    search: false,
+//
+  },
+  {
+    disable: true,
     title: '股票代码',
-    dataIndex: 'code',
+    dataIndex: 'stock_code',
     copyable: true,
     ellipsis: true,
     editable: false,
+    hideInTable: true,
 //
   },
   {
@@ -53,8 +63,8 @@ const columns: ProColumns<StockTransactionList>[] = [
     search: {
       transform: (value) => {
         return {
-          startTime: value[0],
-          endTime: value[1],
+          start_time: value[0],
+          end_time: value[1],
         };
       },
     },
@@ -85,7 +95,7 @@ const columns: ProColumns<StockTransactionList>[] = [
       <a
         key="editable"
         onClick={() => {
-          action?.startEditable?.(record.code);
+          action?.startEditable?.(record.stock_code);
         }}
       >
         编辑
@@ -106,7 +116,7 @@ export default () => {
         await waitTime(2000);
         return request<{
           data: StockTransactionList[];
-        }>('http://10.236.66.157/transaction_data_seperate/list_get', {
+        }>('localhost:8000/api/backend/transaction_data_seperate/list_get', {
           params,
         });
       }}
@@ -120,13 +130,22 @@ export default () => {
           //   amount: number;
           //   price: number;
           // };
-          const { code, date, amount, price} = data; 
+          const { id, stock_code, date, amount, price} = data; 
           // 提取需要修改的字段
-          const payload = { code, date, amount, price}; 
+          const payload = { id, stock_code, date, amount, price}; 
           // 构造需要上传的数据
           console.log('payload: ', payload);
           // 发送 POST 请求将修改后的数据同步到后端
-          await request.post(`http://10.236.66.157/api/backend/transaction_data_seperate/info_change`,{data:payload});
+          await request.post(`localhost:8000/api/backend/transaction_data_seperate/info_change`,{data:payload});
+          // 重新加载数据
+          actionRef.current?.reload();
+        },
+        onDelete: async (rowKey, data) => {
+          const { id } = data; // 提取需要删除的字段
+          const payload = { id }; // 构造需要上传的数据
+          console.log('payload: ', payload);
+          // 发送 POST 请求将修改后的数据同步到后端
+          await request.post(`localhost:8000/api/backend/transaction_data_seperate/info_delete`,{data:payload});
           // 重新加载数据
           actionRef.current?.reload();
         },
